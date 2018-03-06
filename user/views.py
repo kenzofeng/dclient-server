@@ -22,7 +22,5 @@ def log(request):
 
 
 def get_dockerfile(request):
-    import time
-    time.sleep(1)
     df = dockerfile.objects.get(name=request.GET['name'])
     return HttpResponse(df.content)
