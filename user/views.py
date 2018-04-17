@@ -1,20 +1,8 @@
 from django.http import JsonResponse, HttpResponse
-from cryptography.fernet import Fernet, MultiFernet
-from .models import aws, log, dockerfile
+from cryptography.fernet import Fernet
+from .models import aws, log, dockerfile, Access
 
-
-def get_pwd(request):
-    secret_key = Fernet.generate_key()
-    key1 = Fernet(secret_key)
-    f = MultiFernet([key1])
-    myaws = aws.objects.all()[0]
-    id = myaws.aid
-    key = myaws.akey
-    eid = f.encrypt(str.encode(id))
-    ekey = f.encrypt(str.encode(key))
-    print(eid)
-    print(ekey)
-    return JsonResponse({"aid": bytes.decode(eid), "akey": bytes.decode(ekey), "key": bytes.decode(secret_key)})
+secret_key = b'XQYfjn2t4BkYHsTpkPZDzfSlLQqAJGzEzF8GPkEYjfc='
 
 
 def log(request):
@@ -24,3 +12,13 @@ def log(request):
 def get_dockerfile(request):
     df = dockerfile.objects.get(name=request.GET['name'])
     return HttpResponse(df.content)
+
+
+def get_access(request):
+    access = Access.objects.get(docker_registry=request.GET['docker_registry'])
+    user = access.user
+    pwd = access.pwd
+    cipher_suite = Fernet(secret_key)
+    en_user = cipher_suite.encrypt(str.encode(user))
+    en_pwd = cipher_suite.encrypt(str.encode(pwd))
+    return JsonResponse({"u": bytes.decode(en_user), "p": bytes.decode(en_pwd)})

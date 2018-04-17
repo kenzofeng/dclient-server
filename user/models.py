@@ -14,3 +14,9 @@ class log(models.Model):
 class dockerfile(models.Model):
     name = models.CharField(max_length=100)
     content = models.TextField()
+
+
+class Access(models.Model):
+    docker_registry = models.CharField(max_length=200)
+    user = models.CharField(max_length=100)
+    pwd = models.CharField(max_length=500)
